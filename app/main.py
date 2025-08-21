@@ -1,27 +1,29 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
-from .models import GraphRequest, ShortestPathResponse, SaveRequest
+from typing import List
+
+from .models import GraphRequest, ShortestPathResponse, SaveRequest, Graph, Node
 from .algorithms import run_algorithm
 from .storage import save_topology, load_topology, list_topologies
 
 app = FastAPI(title="Network Routing Simulator API")
+
 origins = [
     "https://netsimulator.vercel.app"
 ]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,   
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 @app.post("/api/shortest-path", response_model=ShortestPathResponse)
 def shortest_path(req: GraphRequest):
-    # Validate minimal
     if req.source is None or req.target is None:
         raise HTTPException(status_code=400, detail="source and target required")
-    result = run_algorithm(req.nodes, req.edges, req.algorithm, req.source, req.target, req.options or {})
-    return result
+    return run_algorithm(req.nodes, req.edges, req.algorithm, req.source, req.target, req.options or {})
 
 @app.post("/api/save")
 def save(req: SaveRequest):
@@ -38,3 +40,15 @@ def load(topo_id: str):
 @app.get("/api/list")
 def list_saved():
     return {"list": list_topologies()}
+
+# Router section
+router = APIRouter()
+current_graph: Graph = Graph(nodes=[], edges=[])
+
+@router.get("/fetch-nodes", response_model=List[Node])
+def fetch_nodes():
+    if not current_graph.nodes:
+        raise HTTPException(status_code=404, detail="No nodes found in the graph")
+    return current_graph.nodes
+
+app.include_router(router, prefix="/api")
