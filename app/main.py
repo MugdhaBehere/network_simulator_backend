@@ -19,6 +19,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+@app.get("/")
+def root():
+    return {"status": "ok", "message": "Network Simulator API is running"}
+
+
+
 @app.post("/api/shortest-path", response_model=ShortestPathResponse)
 def shortest_path(req: GraphRequest):
     if req.source is None or req.target is None:
