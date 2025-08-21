@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, APIRouter
+from fastapi import FastAPI, HTTPException, APIRouter, Response
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 
@@ -20,9 +20,9 @@ app.add_middleware(
 )
 
 
-@app.get("/health")
-def health():
-    return {"status": "ok", "message": "Network Simulator API is running"}
+@app.head("/health")
+def health_head():
+    return Response(status_code=200)
 
 
 
