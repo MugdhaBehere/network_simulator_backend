@@ -20,9 +20,10 @@ app.add_middleware(
 )
 
 
-@app.get("/")
-def root():
+@app.get("/health")
+def health():
     return {"status": "ok", "message": "Network Simulator API is running"}
+
 
 
 
