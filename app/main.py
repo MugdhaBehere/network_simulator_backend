@@ -5,7 +5,9 @@ from .algorithms import run_algorithm
 from .storage import save_topology, load_topology, list_topologies
 
 app = FastAPI(title="Network Routing Simulator API")
-
+origins = [
+    "https://netsimulator.vercel.app"
+]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
